@@ -2,7 +2,6 @@
 title: "test"
 description: "这里是测试文件"
 pubDate: "2025/09/07"
-heroImage: "/柳儿.png"
 ---
 
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0"
