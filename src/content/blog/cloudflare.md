@@ -2,7 +2,7 @@
 title: 1.1.1.1 WRAP+
 description: "本文介绍了一个用cloudflare部的高质量服务"
 pubDate: 2025/09/30
-heroImage: "1111.png"
+heroImage: "/1111.png"
 tags:
     - 工具
     - 高速网络

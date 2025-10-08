@@ -2,7 +2,7 @@
 title: Xget
 description: "本文介绍了一个用cloudflare部署的高质量库：Xget"
 pubDate: 2025/09/27
-heroImage: "xxget.png"
+heroImage: "/xxget.png"
 tags:
     - 工具
     - xget
