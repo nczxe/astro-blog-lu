@@ -1,0 +1,210 @@
+---
+---
+
+<div class="region-alert" id="regionAlert">
+  <div class="warning-stripes"></div>
+  <div class="region-alert-content">
+    <span class="icon">⚠️</span>
+    <span class="text">提示：本页面内容可能不适用于您所在的地区。请确保遵守当地法律法规。</span>
+    <button class="close-button" aria-label="关闭提示">×</button>
+  </div>
+  <div class="warning-stripes"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const alert = document.getElementById('regionAlert');
+    if (alert) {
+      setTimeout(() => {
+        alert.classList.add('show');
+      }, 100);
+
+      const closeButton = alert.querySelector('.close-button');
+      if (closeButton) {
+        closeButton.addEventListener('click', () => {
+          alert.classList.add('hiding');
+          setTimeout(() => {
+            alert.style.display = 'none';
+          }, 300);
+        });
+      }
+    }
+  });
+</script>
+
+<style>
+  .region-alert {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff5d6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
+    /* 添加初始状态 */
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.3s ease-out;
+  }
+
+  .warning-stripes {
+    height: 8px;
+    width: 100%;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #ffd400 0%,
+      #ffd400 10%,
+      #000000 10%,
+      #000000 20%
+    );
+    background-size: 200% 200%;
+    animation: stripe-animation 8s linear infinite;
+  }
+
+  /* 显示状态 */
+  .region-alert.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 隐藏动画 */
+  .region-alert.hiding {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  @keyframes stripe-animation {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: 0 0;
+    }
+  }
+
+  .region-alert-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: #734900;
+    position: relative;
+    background: rgba(255, 245, 214, 0.95);
+  }
+
+  .icon {
+    font-size: 1.2em;
+    line-height: 1;
+    filter: drop-shadow(0 0 2px rgba(255, 212, 0, 0.5));
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    10% {
+      transform: translateY(-2px);
+    }
+    20% {
+      transform: translateY(0);
+    }
+  }
+
+  .text {
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    color: #734900;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+  }
+
+  .close-button:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .close-button:active {
+    transform: scale(0.95);
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 640px) {
+    .region-alert-content {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  /* 深色模式适配 */
+  @media (prefers-color-scheme: dark) {
+    .region-alert {
+      background: #2b2500;
+    }
+    
+    .region-alert-content {
+      background: rgba(43, 37, 0, 0.95);
+      color: #ffd954;
+    }
+
+    .warning-stripes {
+      background-image: repeating-linear-gradient(
+        45deg,
+        #ffd400 0%,
+        #ffd400 10%,
+        #1a1a1a 10%,
+        #1a1a1a 20%
+      );
+    }
+  }
+
+  /* 减少动画 */
+  @media (prefers-reduced-motion: reduce) {
+    .warning-stripes {
+      animation: none;
+    }
+    .icon {
+      animation: none;
+    }
+  }
+
+  /* 打印模式隐藏 */
+  @media print {
+    .region-alert {
+      display: none;
+    }
+  }
+</style>

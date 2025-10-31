@@ -1,0 +1,237 @@
+---
+---
+
+<div id="redirectAlert" class="redirect-alert" style="display: none;" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
+  <div class="warning-stripes top-stripes" aria-hidden="true"></div>
+  <div class="redirect-alert-content" role="document">
+    <span class="icon" aria-hidden="true">⚠️</span>
+    <div class="text-wrap">
+      <span class="text">检测到您当前所在地区，页面将在 <span id="countdown">5</span> 秒后自动跳转...</span>
+    </div>
+  </div>
+  <div class="warning-stripes bottom-stripes" aria-hidden="true"></div>
+</div>
+
+<script>
+  /**
+   * TEST_MODE 切换说明（可在代码中直接修改）
+   *
+   * 快速切换（优先级最高，直接在此文件中修改）：
+   *   // 开启测试模式（对所有访问触发）
+   *   const OVERRIDE_TEST_MODE = 'T';
+   *
+   *   // 关闭测试模式（恢复正常检测）
+   *   const OVERRIDE_TEST_MODE = 'F';
+   *
+   * 其他可选切换方式（无需改代码）：
+   *  1) 在浏览器控制台设置全局变量： window.TEST_MODE = 'T' 或 window.__TEST_MODE = 'T'，然后 location.reload()
+   *  2) URL 参数：在地址后加 ?region_test=T 或 ?region_test=F
+   *  3) 构建时公开环境变量：在 .env 中设置 PUBLIC_REGION_TEST=T，然后重启 dev server
+   *
+   * 解析规则：真值 -> 'T','t','true','1'；假值 -> 'F','f','false','0'
+   */
+  // 在此处直接覆盖：设置为 'T' 或 'F' 或 null（不覆盖）
+  const OVERRIDE_TEST_MODE = 'F'; // <-- 在此处修改为 'T' 或 'F' 来在代码中切换测试模式
+  function parseFlag(v) {
+    if (v == null) return null;
+    const s = String(v).trim().toLowerCase();
+    if (s === 't' || s === 'true' || s === '1') return true;
+    if (s === 'f' || s === 'false' || s === '0') return false;
+    return null;
+  }
+
+  const globalVar = (typeof window !== 'undefined') ? (window['TEST_MODE'] ?? window['__TEST_MODE']) : undefined;
+  const queryVal = (typeof location !== 'undefined') ? new URLSearchParams(location.search).get('region_test') : undefined;
+  const envVal = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.PUBLIC_REGION_TEST : undefined;
+
+  // 优先级：OVERRIDE_TEST_MODE（文件内直接覆盖） > window 全局变量 > URL 查询参数 > 环境变量 > 默认 false
+  const TEST_MODE = parseFlag(OVERRIDE_TEST_MODE) ?? parseFlag(globalVar) ?? parseFlag(queryVal) ?? parseFlag(envVal) ?? false;
+
+  // 调试输出，帮助确认来源和最终决定
+  try {
+    console.info('RegionRedirect: OVERRIDE_TEST_MODE=', OVERRIDE_TEST_MODE, 'window=', globalVar, 'query=', queryVal, 'env=', envVal, '=> TEST_MODE=', TEST_MODE);
+  } catch (e) {}
+
+  function showRedirectAlert() {
+    const alert = document.getElementById('redirectAlert');
+    const countdown = document.getElementById('countdown');
+      if (!alert || !countdown) {
+        console.error('找不到必要的 DOM 元素');
+        return;
+      }
+
+      // 如果已经显示过则跳过重复显示
+      if (alert.classList.contains('show')) return;
+
+      // 在 DOM 上暴露调试信息，便于前端检查
+      alert.dataset.testMode = TEST_MODE ? 'T' : 'F';
+
+      let seconds = 5;
+
+      // 阻止页面滚动并设置为可见（最高优先级全屏覆盖）
+      document.body.style.overflow = 'hidden';
+      alert.style.display = 'flex';
+      alert.setAttribute('aria-hidden', 'false');
+      // 给一次渲染机会上添加 class 以触发动画
+      setTimeout(() => alert.classList.add('show'), 50);
+
+    // 倒计时
+    const timer = setInterval(() => {
+      seconds--;
+      countdown.textContent = seconds.toString();
+
+      if (seconds <= 0) {
+        clearInterval(timer);
+        // 恢复页面滚动再跳转（更友好）
+        try { document.body.style.overflow = ''; } catch (e) {}
+        window.location.href = 'about:blank';
+      }
+    }, 1000);
+  }
+
+  // 开发时可在控制台调用此函数强制显示（无需修改源代码）
+  try { window['forceShowRegionRedirect'] = showRedirectAlert; } catch (e) {}
+
+  (async () => {
+    if (TEST_MODE) {
+      // 测试模式：对所有访问生效，直接显示警告
+      showRedirectAlert();
+      return;
+    }
+
+    try {
+      const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+      const text = await res.text();
+      const data = Object.fromEntries(
+        text.trim().split('\n').map(line => line.split('='))
+      );
+
+      if (data.loc === 'CN') {
+        showRedirectAlert();
+      }
+    } catch (err) {
+      console.error('地区检测失败:', err);
+    }
+  })();
+</script>
+
+<style>
+  .redirect-alert {
+    /* 全屏覆盖，最高优先级 */
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.75);
+    z-index: 2147483647; /* 最大 z-index，确保位于最上层 */
+    opacity: 0;
+    transition: opacity 0.28s ease, transform 0.4s ease;
+    transform: translateY(8%);
+    overflow: hidden;
+  }
+
+  .redirect-alert.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .warning-stripes {
+    height: 10px;
+    width: 100%;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #ff0000 0%,
+      #ff0000 10%,
+      #000000 10%,
+      #000000 20%
+    );
+    background-size: 200% 200%;
+    animation: stripe-animation 8s linear infinite;
+  }
+
+  .warning-stripes.top-stripes {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .warning-stripes.bottom-stripes {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+
+  @keyframes stripe-animation {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: 0 0;
+    }
+  }
+
+  .redirect-alert-content {
+    padding: 2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(43, 0, 0, 0.95);
+    max-width: 900px;
+    width: calc(100% - 4rem);
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .icon {
+    font-size: 1.5em;
+    line-height: 1;
+    filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.5));
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+
+  .text {
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  #countdown {
+    font-weight: bold;
+    color: #ff4444;
+  }
+
+  /* 减少动画 */
+  @media (prefers-reduced-motion: reduce) {
+    .warning-stripes {
+      animation: none;
+    }
+    .icon {
+      animation: none;
+    }
+  }
+
+  /* 响应式：在小屏幕上让内容填满大部分视窗 */
+  @media (max-width: 640px) {
+    .redirect-alert-content {
+      width: calc(100% - 2rem);
+      padding: 1.25rem;
+      border-radius: 0;
+    }
+  }
+</style>

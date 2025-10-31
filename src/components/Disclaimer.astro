@@ -1,0 +1,278 @@
+---
+interface Props {
+  /**
+   * 可选的额外自定义文本
+   */
+  customText?: string;
+}
+
+const { customText } = Astro.props;
+---
+
+<div class="disclaimer" id="disclaimerModal">
+  <div class="disclaimer-content">
+    <h3 class="disclaimer-title">重要免责声明</h3>
+    <div class="disclaimer-body">
+      <p class="emphasis">在继续浏览前，请仔细阅读以下声明：</p>
+      <div class="disclaimer-section">
+        <h4>⚠️ 技术交流声明</h4>
+        <p>本站内容仅用于技术研究和学习交流目的。所有讨论和分享均应严格遵守您所在地区的法律法规。</p>
+      </div>
+      <div class="disclaimer-section">
+        <h4>📜 法律责任声明</h4>
+        <ul class="disclaimer-list">
+          <li>本站不对任何技术的使用后果承担责任</li>
+          <li>用户需自行确保其行为符合当地法律要求</li>
+          <li>本站不对任何因使用本站内容造成的损失负责</li>
+          <li>浏览本站即表示您完全理解并接受上述条款</li>
+        </ul>
+      </div>
+      {customText && <p class="custom-text">{customText}</p>}
+      <div class="disclaimer-actions">
+        <button id="acceptDisclaimer" class="action-button accept">我已阅读并同意</button>
+        <button id="rejectDisclaimer" class="action-button reject">不同意并离开</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('disclaimerModal');
+  const acceptButton = document.getElementById('acceptDisclaimer');
+  const rejectButton = document.getElementById('rejectDisclaimer');
+
+  // 每次访问都显示模态框
+  modal?.classList.add('show');
+
+  // 同意按钮
+  acceptButton?.addEventListener('click', () => {
+    modal?.classList.remove('show');
+  });
+
+  // 拒绝按钮
+  rejectButton?.addEventListener('click', () => {
+    window.location.href = 'about:blank';
+  });
+</script>
+
+<style>
+  .disclaimer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+      background: #ffffff;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+      opacity: 1;
+      transition: transform 0.5s ease;
+      transform: translateY(100%);
+  }
+
+  .disclaimer.show {
+    display: flex;
+    opacity: 1;
+      transform: translateY(0);
+  }
+
+  .disclaimer-content {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      background: #ffffff;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  }
+
+  .disclaimer-title {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    color: #333;
+      padding: 0;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding: 1.5rem 0 1rem;
+  }
+      padding: 2rem;
+  .disclaimer-body {
+      border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 0 2rem 2rem;
+  }
+
+  .emphasis {
+        background: #1c1c1c;
+    font-weight: 500;
+    color: #d84315;
+    margin: 1rem 0;
+        background: #1c1c1c;
+  }
+
+  .disclaimer-section {
+    margin: 1.5rem 0;
+    padding: 1.25rem;
+    background: rgba(0, 0, 0, 0.03);
+        padding: 1rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+        padding: 0 1rem;
+  .disclaimer-section h4 {
+    margin: 0 0 0.75rem 0;
+    color: #000;
+        padding: 1.5rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+  }
+
+  .disclaimer-list {
+    margin: 1rem 0 0 0;
+    padding-left: 1.5rem;
+    list-style-type: none;
+  }
+
+  .disclaimer-list li {
+    position: relative;
+    margin: 0.75rem 0;
+    color: #2d2d2d;
+  }
+
+  .disclaimer-list li::before {
+    content: "•";
+    color: #666;
+    position: absolute;
+    left: -1rem;
+    font-size: 1.2em;
+    line-height: 1;
+  }
+
+  .disclaimer-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .action-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .action-button.accept {
+    background: #4caf50;
+    color: white;
+  }
+
+  .action-button.reject {
+    background: #f44336;
+    color: white;
+  }
+
+  .action-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .action-button:active {
+    transform: translateY(0);
+  }
+
+  .custom-text {
+    font-style: italic;
+    color: #555;
+    border-left: 3px solid #ddd;
+    padding-left: 1rem;
+    margin: 1rem 0;
+  }
+
+  /* 深色模式适配 */
+  @media (prefers-color-scheme: dark) {
+    .disclaimer-content {
+      background: rgba(28, 28, 28, 0.97);
+    }
+
+    .disclaimer-title {
+      color: #fff;
+      border-bottom-color: #333;
+    }
+
+    .disclaimer-body {
+      color: #e0e0e0;
+    }
+
+    .emphasis {
+      color: #ff6e40;
+    }
+
+    .disclaimer-section {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .disclaimer-section h4 {
+      color: #fff;
+    }
+
+    .disclaimer-list li {
+      color: #ddd;
+    }
+
+    .disclaimer-list li::before {
+      color: #888;
+    }
+
+    .action-button.accept {
+      background: #2e7d32;
+    }
+
+    .action-button.reject {
+      background: #c62828;
+    }
+
+    .custom-text {
+      color: #ccc;
+      border-left-color: #444;
+    }
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 640px) {
+    .disclaimer-content {
+      padding: 1rem;
+    }
+
+    .disclaimer-title {
+      font-size: 1.1rem;
+    }
+
+    .disclaimer-body {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* 打印样式 */
+  @media print {
+    .disclaimer {
+      display: none;
+    }
+  }
+</style>
